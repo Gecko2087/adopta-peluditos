@@ -10,17 +10,20 @@ const ItemList = () => {
   const { pets, loading, deletePet } = useContext(PetContext)
   const navigate = useNavigate()
   const [filterType, setFilterType] = useState('Todos')
+  const [filterGender, setFilterGender] = useState('Todos')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [selected, setSelected] = useState([])
 
-  // Filtrado por tipo y búsqueda
+  // Filtrado por tipo, género y búsqueda
   const filteredPets = useMemo(
     () =>
       pets.filter(pet =>
         (filterType === 'Todos' ? true : pet.type === filterType) &&
+        (filterGender === 'Todos' ? true : pet.gender === filterGender) &&
         pet.name.toLowerCase().includes(search.toLowerCase())
       ),
-    [pets, filterType, search]
+    [pets, filterType, filterGender, search]
   )
 
   // Paginación
@@ -32,6 +35,11 @@ const ItemList = () => {
     setPage(1)
   }
 
+  const handleGenderChange = (e) => {
+    setFilterGender(e.target.value)
+    setPage(1)
+  }
+
   const handleSearchChange = (e) => {
     setSearch(e.target.value)
     setPage(1)
@@ -39,6 +47,40 @@ const ItemList = () => {
 
   const handlePrev = () => setPage(p => Math.max(1, p - 1))
   const handleNext = () => setPage(p => Math.min(totalPages, p + 1))
+
+  // Selección múltiple
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(paginatedPets.map(p => p.id))
+    } else {
+      setSelected([])
+    }
+  }
+  const handleSelect = (id) => {
+    setSelected(sel =>
+      sel.includes(id) ? sel.filter(sid => sid !== id) : [...sel, id]
+    )
+  }
+  const handleDeleteSelected = async () => {
+    if (selected.length === 0) return
+    const result = await Swal.fire({
+      title: `¿Eliminar ${selected.length} mascota(s)?`,
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e3342f',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar seleccionadas',
+      cancelButtonText: 'Cancelar',
+      draggable: true
+    })
+    if (result.isConfirmed) {
+      for (const id of selected) {
+        await deletePet(id)
+      }
+      setSelected([])
+    }
+  }
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-2">
@@ -66,6 +108,18 @@ const ItemList = () => {
             <option value="Todos">Todos</option>
             <option value="Perro">Perros</option>
             <option value="Gato">Gatos</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="font-semibold mr-2">Filtrar por género:</label>
+          <select
+            value={filterGender}
+            onChange={handleGenderChange}
+            className="border-2 border-green-400 dark:border-purple-500 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-semibold shadow focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-purple-400"
+          >
+            <option value="Todos">Todos los géneros</option>
+            <option value="Macho">Macho</option>
+            <option value="Hembra">Hembra</option>
           </select>
         </div>
         <div className="flex items-center gap-2">
@@ -120,6 +174,15 @@ const ItemList = () => {
           <table className="w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg">
             <thead>
               <tr className="bg-green-100 dark:bg-indigo-900 text-green-900 dark:text-yellow-200">
+                <th className="p-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={paginatedPets.length > 0 && paginatedPets.every(p => selected.includes(p.id))}
+                    onChange={handleSelectAll}
+                    aria-label="Seleccionar todas"
+                  />
+                </th>
+                <th className="p-3 text-center">Foto</th>
                 <th className="p-3 text-center">Nombre</th>
                 <th className="p-3 text-center">Tipo</th>
                 <th className="p-3 text-center">Género</th>
@@ -133,6 +196,21 @@ const ItemList = () => {
                   key={pet.id}
                   className="border-t border-gray-200 dark:border-gray-700 hover:bg-green-50 dark:hover:bg-indigo-800 transition"
                 >
+                  <td className="p-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(pet.id)}
+                      onChange={() => handleSelect(pet.id)}
+                      aria-label={`Seleccionar ${pet.name}`}
+                    />
+                  </td>
+                  <td className="p-3 text-center">
+                    <img
+                      src={pet.photo || '/default-pet.jpg'}
+                      alt={pet.name}
+                      className="w-12 h-12 object-cover rounded mx-auto"
+                    />
+                  </td>
                   <td className="p-3 font-semibold text-center">{pet.name}</td>
                   <td className="p-3 text-center">{pet.type}</td>
                   <td className="p-3 text-center">{pet.gender}</td>
@@ -168,6 +246,7 @@ const ItemList = () => {
                         })
                         if (result.isConfirmed) {
                           await deletePet(pet.id)
+                          setSelected(sel => sel.filter(id => id !== pet.id))
                         }
                       }}
                       aria-label={`Eliminar ${pet.name}`}
@@ -204,6 +283,19 @@ const ItemList = () => {
             <FaChevronRight />
           </button>
         </div>
+      )}
+      {/* Botón flotante para eliminar seleccionados */}
+      {selected.length > 0 && (
+        <button
+          onClick={handleDeleteSelected}
+          className="fixed z-50 bottom-6 right-6 flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold text-base shadow-xl border-2 border-white dark:border-gray-900
+            hover:scale-105 hover:from-red-600 hover:to-pink-600 transition-all duration-200"
+          style={{ boxShadow: '0 4px 16px 0 rgba(220,38,38,0.18)' }}
+        >
+          <FaTrash className="text-lg" />
+          <span className="hidden sm:inline">Eliminar seleccionadas</span>
+          <span className="bg-white text-red-600 font-bold rounded-full px-2 py-0.5 ml-1 text-sm shadow">{selected.length}</span>
+        </button>
       )}
     </div>
   )

@@ -99,21 +99,16 @@ const PetCard = ({ pet, adminActions = false }) => {
           <img
             src={pet.photo}
             alt={pet.name}
-            className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
+            className="object-contain w-full h-full transition-transform duration-300 hover:scale-105 bg-pink-50 dark:bg-pink-200"
+            style={{}}
           />
         ) : (
-          <div className="flex items-center justify-center w-full h-full">
-            {/* SVG de mascota amigable */}
-            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="opacity-60">
-              <ellipse cx="32" cy="40" rx="18" ry="14" fill="#cbd5e1"/>
-              <ellipse cx="20" cy="24" rx="6" ry="10" fill="#cbd5e1"/>
-              <ellipse cx="44" cy="24" rx="6" ry="10" fill="#cbd5e1"/>
-              <ellipse cx="32" cy="38" rx="10" ry="8" fill="#fff"/>
-              <circle cx="28" cy="38" r="2" fill="#333"/>
-              <circle cx="36" cy="38" r="2" fill="#333"/>
-              <ellipse cx="32" cy="44" rx="3" ry="2" fill="#333"/>
-            </svg>
-          </div>
+          <img
+            src="/default-pet.jpg"
+            alt="Mascota sin foto"
+            className="object-contain w-full h-full opacity-60 bg-pink-50 dark:bg-pink-300"
+            style={{}}
+          />
         )}
       </div>
 

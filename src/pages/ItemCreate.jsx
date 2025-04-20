@@ -36,11 +36,17 @@ const ItemCreate = () => {
   const handleChange = e => {
     const { name, value, files } = e.target
     let val = value
-    if (name === 'photo' && files.length) {
-      const reader = new FileReader()
-      reader.onload = ev => setPreview(ev.target.result)
-      reader.readAsDataURL(files[0])
-      setForm(f => ({ ...f, photo: files[0] }))
+    if (name === 'photo') {
+      if (files && files.length) {
+        const file = files[0]
+        const reader = new FileReader()
+        reader.onload = ev => setPreview(ev.target.result)
+        reader.readAsDataURL(file)
+        setForm(f => ({ ...f, photo: file }))
+      } else {
+        setPreview('')
+        setForm(f => ({ ...f, photo: '' }))
+      }
       return
     }
     if (name === 'age') val = val.replace(/[^0-9.]/g, '')
@@ -134,16 +140,34 @@ const ItemCreate = () => {
           aria-invalid={!!errors.age}
         />
         {errors.age && <span className="text-red-500 text-sm">{errors.age}</span>}
-        <input
-          name="photo"
-          type="file"
-          accept="image/*"
-          onChange={handleChange}
-          className="p-3 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-        />
-        {preview && (
-          <img src={preview} alt="preview" className="w-32 h-32 object-cover rounded mx-auto shadow" />
-        )}
+        {/* Input de imagen mejorado */}
+        <div className="flex flex-col items-center gap-2">
+          <label
+            htmlFor="photo"
+            className="w-full cursor-pointer flex items-center justify-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100 rounded font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          >
+            {form.photo && typeof form.photo === 'object'
+              ? form.photo.name
+              : 'Seleccionar imagen'}
+            <input
+              id="photo"
+              name="photo"
+              type="file"
+              accept="image/*"
+              onChange={handleChange}
+              className="hidden"
+            />
+          </label>
+          <div className="w-full flex justify-center">
+            <img
+              src={preview || '/default-pet.jpg'}
+              alt="preview"
+              className="w-32 h-32 object-cover rounded mx-auto shadow border border-gray-300 dark:border-gray-700 bg-white"
+              style={{ background: '#fff' }}
+              onError={e => { e.target.src = '/default-pet.jpg' }}
+            />
+          </div>
+        </div>
         <textarea
           name="description"
           value={form.description}
