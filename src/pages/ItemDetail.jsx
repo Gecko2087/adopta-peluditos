@@ -29,7 +29,12 @@ const ItemDetail = () => {
         &larr; Volver al listado
       </button>
       <div className="bg-white dark:bg-gray-800 rounded shadow p-6">
-        <img src={pet.photo} alt={pet.name} className="w-48 h-48 object-cover rounded mb-4 mx-auto" />
+        <img
+          src={pet.photo && pet.photo.trim() !== '' ? pet.photo : '/default-pet.jpg'}
+          alt={pet.name}
+          className="w-48 h-48 object-cover rounded mb-4 mx-auto"
+          onError={e => { e.target.src = '/default-pet.jpg' }}
+        />
         <h2 className="text-2xl font-bold mb-2">{pet.name}</h2>
         <p><b>Tipo:</b> {pet.type}</p>
         <p><b>Género:</b> {pet.gender}</p>
