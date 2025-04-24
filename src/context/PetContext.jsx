@@ -53,7 +53,7 @@ export const PetProvider = ({ children }) => {
     setLoading(true)
     try {
       const classification =
-        petData.age < 1 ? 'Cachorro'
+        petData.age < 2 ? 'Cachorro'
         : petData.age < 7 ? 'Adulto'
         : 'Senior'
 
@@ -75,7 +75,7 @@ export const PetProvider = ({ children }) => {
     setLoading(true)
     try {
       const classification =
-        petData.age < 1 ? 'Cachorro'
+        petData.age < 2 ? 'Cachorro'
         : petData.age < 7 ? 'Adulto'
         : 'Senior'
 
