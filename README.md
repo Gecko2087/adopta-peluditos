@@ -4,7 +4,7 @@ Aplicación CRUD completa desarrollada con **React + Vite + TailwindCSS** para l
 
 ## 🚀 Despliegue
 
-- **Netlify:** [https://adopta-peluditos.netlify.app]
+- **Netlify:** https://adopta-peluditos.netlify.app
 
 ## 📦 Características principales
 
